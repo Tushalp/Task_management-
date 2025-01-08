@@ -1,4 +1,5 @@
 const express = require('express');
+const methodOverride = require('method-override');
 const app = express();
 const path = require('path')
 const fs = require('fs')
@@ -7,6 +8,7 @@ app.set("view engine","ejs")
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname,"public")))
+app.use(methodOverride('_method'));
 
 app.get('/',function(req,res){
     fs.readdir(`./files`,function(err,files){
@@ -22,13 +24,30 @@ app.get('/files/:filename',function(req,res){
     
 })
 
+
+app.get('/delete/:filename', function (req, res) {
+    res.render('delete', { filename: req.params.filename });
+});
+
+app.delete('/delete/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(__dirname, 'files', filename);
+
+    fs.unlink(filePath, (err) => {
+        if (err) {
+            return res.status(500).send('Error deleting file');
+        }
+        res.redirect('/');
+    });
+});
+
+
 app.get('/edit/:filename', function(req,res){
    
     res.render('edit',{filename: req.params.filename});
 
     
 })
-
 app.post('/edit',function(req,res){
     
     fs.rename(`./files/${req.body.previous}`,`./files/${req.body.new}`,function(err){

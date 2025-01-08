@@ -1,1 +1,0 @@
-some issue i faced in node js because i'm beginner and i have not senio type expereince in node js 
